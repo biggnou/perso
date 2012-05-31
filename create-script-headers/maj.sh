@@ -19,6 +19,6 @@ do
    sed -i "/^# Modification/ c\# Modification:   $(stat $i|grep Modify|cut -c9-27)" $i
 
 #ls -l $i |tr -s " " " " |cut -d" " -f6-7 |cut -c1-19)" $i
-   
+
 fi
 done
