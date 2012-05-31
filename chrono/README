@@ -1,0 +1,9 @@
+chrono.sh
+=========
+
+During school, some courses where not THAT interesting.
+
+I used to play a lot on travian. And I needed to launch strikes or defenses at precise timing.
+This script is intended to run in the background and, after the given waiting time, pop an alert window.
+
+It worked well and I remember good wars and raids... ah... travian, I miss you!
