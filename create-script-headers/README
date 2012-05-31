@@ -1,0 +1,11 @@
+4 SCRIPTS
+=========
+
+Those scripts pre-date my usage of Git.
+
+nsh.sh is intended to actually generate homogenous headers.
+maj.sh is intended to update the 'Modification' header.
+printode.sh is intended to generate a file that will contain the content of all files within a directory.
+wtf.sh is inteded to read the "Description" header and prompt it on STDOUT.
+
+They are school projects and not maintained, while I sometimes remember to user nsh.sh...
