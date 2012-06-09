@@ -50,7 +50,7 @@ fi
 #spoof mac address and get this new mac
 iw reg set BO
 iwconfig ${IFACE} txpower 25
-MACADDRESS=`macchanger -A ${IFACE} |grep Faked | egrep -o '([0-9|a-z]{2}:){5}[0-9|a-z]{2}'`
+MACADDRESS=`macchanger -A ${IFACE} |grep Faked | egrep -o '([0-9a-z]{2}:){5}[0-9a-z]{2}'`
 
 # CHECK IF BSSID,CHANNEL & TARGETNAME WERE PROVIDED
 if [ -z ${2} ] || [ -z ${3} ] ; then
