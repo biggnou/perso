@@ -4,7 +4,7 @@ chromeid='choupette'
 myuri='example.com'
 
 chrome-on () {
-    chromium-browser --new-window ${myuri} 1>/dev/null & echo $! > /tmp/chromeid
+    chromium-browser --app=${1} &>/dev/null & echo $! > /tmp/chromeid
 }
 
 chrome-off () {
@@ -20,7 +20,7 @@ if [ "$#" -eq 0 ]; then
     exit 1
 fi
 
-OPTS=`getopt -o o,k,u: -l on,off,url: -- "$@"`
+OPTS=`getopt -o o:,k -l on:,off -- "$@"`
 
 if [ $? != 0 ]; then
     exit 1
@@ -31,8 +31,8 @@ eval set -- "$OPTS"
 while true; do
     case "$1" in
 	-o|--on)
-	    chrome-on $myuri
-	    shift
+	    chrome-on $2
+	    shift 2
 	    ;;
 	-k|--off)
 	    chromeid=`cat /tmp/chromeid`
@@ -40,10 +40,6 @@ while true; do
 #	    chrome-off $chromeid
 	    rm /tmp/chromeid
 	    shift
-	    ;;
-	-u|-uri)
-	    myuri=$2
-	    shift 2
 	    ;;
 	\?)
 	    echo "Invalid option: $OPTARG"
