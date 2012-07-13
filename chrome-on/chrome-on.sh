@@ -14,6 +14,13 @@ chrome-off () {
     kill -12 `cat /tmp/chromeid`
 }
 
+####
+## Argument parsing.
+if [ "$#" -eq 0 ]; then
+    echo -e "\n\tNope.\n"
+    exit 1
+fi
+
 OPTS=`getopt -o o,k -l on,off -- "$@"`
 
 if [ $? != 0 ]; then
