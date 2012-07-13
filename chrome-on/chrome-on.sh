@@ -4,9 +4,7 @@ chromeid='choupette'
 myuri='example.com'
 
 chrome-on () {
-    echo ON
-    chromium-browser --app="${myrui}"
-    echo $! > /tmp/chromeid
+    chromium-browser --app="${myuri}" 1>/dev/null & echo $! > /tmp/chromeid
 }
 
 chrome-off () {
@@ -32,7 +30,7 @@ eval set -- "$OPTS"
 while true; do
     case "$1" in
 	-o|--on)
-	    chrome-on
+	    chrome-on $myuri
 	    shift
 	    ;;
 	-k|--off)
