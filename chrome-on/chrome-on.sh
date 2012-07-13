@@ -1,7 +1,7 @@
 #!/bin/bash
 
 chromeid='choupette'
-myuri='https://nagios.zerospam.ca/nagios2'
+myuri='example.com'
 
 chrome-on () {
     echo ON
@@ -21,7 +21,7 @@ if [ "$#" -eq 0 ]; then
     exit 1
 fi
 
-OPTS=`getopt -o o,k -l on,off -- "$@"`
+OPTS=`getopt -o o,k,u: -l on,off,url: -- "$@"`
 
 if [ $? != 0 ]; then
     exit 1
@@ -38,6 +38,10 @@ while true; do
 	-k|--off)
 	    chrome-off
 	    shift
+	    ;;
+	-u|-uri)
+	    myuri=$2
+	    shift 2
 	    ;;
 	\?)
 	    echo "Invalid option: $OPTARG"
