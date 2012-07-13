@@ -4,7 +4,7 @@ chromeid='choupette'
 myuri='example.com'
 
 chrome-on () {
-    chromium-browser --app="${myuri}" 1>/dev/null & echo $! > /tmp/chromeid
+    chromium-browser --new-window ${myuri} 1>/dev/null & echo $! > /tmp/chromeid
 }
 
 chrome-off () {
