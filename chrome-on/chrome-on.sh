@@ -9,7 +9,8 @@ chrome-on () {
 
 chrome-off () {
     echo OFF
-    kill -12 `cat /tmp/chromeid`
+    cat /tmp/chromeid
+#    kill -12 `cat /tmp/chromeid`
 }
 
 ####
@@ -34,7 +35,10 @@ while true; do
 	    shift
 	    ;;
 	-k|--off)
-	    chrome-off
+	    chromeid=`cat /tmp/chromeid`
+	    echo $chromeid
+#	    chrome-off $chromeid
+	    rm /tmp/chromeid
 	    shift
 	    ;;
 	-u|-uri)
