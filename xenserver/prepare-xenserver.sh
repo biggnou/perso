@@ -136,6 +136,15 @@ cat > /root/.emacs-custom.el << EOF
  '(cursor ((t (:background "#ffffff")))))
 EOF
 
+## secure the webserver
+mv /opt/xensource/www/XenCenter.msi /opt/xensource/www/XenCenter.msi
+mv /opt/xensource/www/XenCenter.iso /opt/xensource/www/XenCenter.iso.disabled
+cat > /opt/xensource/www/Citrix-index.html <<EOF
+<html>
+  <title>XenServer 2.1.0-haha.com</title>
+</html>
+EOF
+
 ## Prepare /root/.ssh/authorized_keys
 cat > /root/.ssh/authorized_keys <<EOF
 # Add your SSH keys here.
