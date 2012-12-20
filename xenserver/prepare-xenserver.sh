@@ -137,7 +137,7 @@ cat > /root/.emacs-custom.el << EOF
 EOF
 
 ## secure the webserver
-mv /opt/xensource/www/XenCenter.msi /opt/xensource/www/XenCenter.msi
+mv /opt/xensource/www/XenCenter.msi /opt/xensource/www/XenCenter.msi.disabled
 mv /opt/xensource/www/XenCenter.iso /opt/xensource/www/XenCenter.iso.disabled
 cat > /opt/xensource/www/Citrix-index.html <<EOF
 <html>
