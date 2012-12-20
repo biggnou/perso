@@ -1,7 +1,7 @@
 #!/bin/sh
 
-## Install vim
-yum -y --enablerepo=base install vim-enhanced emacs
+## Install generic stuff
+yum -y --enablerepo=base install vim-enhanced emacs git
 
 ## Simple but usable vimrc
 cat > /root/.vimrc <<EOF
@@ -168,8 +168,6 @@ sed -i 's/IPTABLES_MODULES="ip_conntrack_netbios_ns"/IPTABLES_MODULES=""/g' /etc
 cat > /etc/sysconfig/iptables <<EOF
 # rules as per `basename $0`
 # rolled on: `date`
-#IPTABLES_MODULES=""
-#IPTABLES_MODULES_UNLOAD="no"
 *filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
