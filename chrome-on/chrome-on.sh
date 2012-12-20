@@ -4,7 +4,8 @@ chromeid='choupette'
 myuri='example.com'
 
 chrome-on () {
-    chromium-browser --app=${1} &>/dev/null & echo $! > /tmp/chromeid
+    chromium-browser --login-profile="test" --app=${1} &>/dev/null & echo $! > /tmp/chromeid
+#    firefox -new-window ${1} & echo $! > /tmp/firefoxid
 }
 
 chrome-off () {
