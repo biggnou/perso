@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ## Install generic stuff
-yum -y --enablerepo=base install vim-enhanced emacs git
+yum -y --enablerepo=base install vim-enhanced emacs
 
 ## Simple but usable vimrc
 cat > /root/.vimrc <<EOF
