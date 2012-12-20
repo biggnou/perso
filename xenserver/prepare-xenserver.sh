@@ -188,15 +188,22 @@ cat > /etc/sysconfig/iptables <<EOF
 -A RH-Firewall-1-INPUT -p icmp --icmp-type any -j ACCEPT
 -A RH-Firewall-1-INPUT -p 50 -j ACCEPT
 -A RH-Firewall-1-INPUT -p 51 -j ACCEPT
+# DNS Multicast
 -A RH-Firewall-1-INPUT -p udp --dport 5353 -d 224.0.0.251 -j ACCEPT
--A RH-Firewall-1-INPUT -p udp -m udp --dport 631 -j ACCEPT
--A RH-Firewall-1-INPUT -p tcp -m tcp --dport 631 -j ACCEPT
+## IPP and CUPS
+# -A RH-Firewall-1-INPUT -p udp -m udp --dport 631 -j ACCEPT
+# -A RH-Firewall-1-INPUT -p tcp -m tcp --dport 631 -j ACCEPT
+# Established
 -A RH-Firewall-1-INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
--A RH-Firewall-1-INPUT -m state --state NEW -m udp -p udp --dport 694 -j ACCEPT
+## ha-cluster
+# -A RH-Firewall-1-INPUT -m state --state NEW -m udp -p udp --dport 694 -j ACCEPT
+# nagios ntp monitor
 -A RH-Firewall-1-INPUT -m state --state NEW -m udp -p udp --dport 123 -j ACCEPT
+# SSH
 -A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
--A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+# https is needed for XenCenter
 -A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+# The end.
 -A RH-Firewall-1-INPUT -j REJECT --reject-with icmp-host-prohibited
 COMMIT
 EOF
