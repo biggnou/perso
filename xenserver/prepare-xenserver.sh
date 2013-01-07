@@ -8,9 +8,9 @@ fixall () {
     ## Fix yum: add fc6 extras
     if [ ! -f /etc/yum.repos.d/fc6extras.repo ]; then
 	cat > /etc/yum.repos.d/fc6extras.repo <<EOF
-# [fc6-extras]
+[fc6-extras]
 name=Fedora Core 6 Extras
-mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=extras-6&arch=$basearch
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=extras-6&arch=\$basearch
 enabled=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
 gpgcheck=0
@@ -160,10 +160,12 @@ EOF
 EOF
 
     ## secure the webserver
-    if [ mv /opt/xensource/www/XenCenter.msi /opt/xensource/www/XenCenter.msi.disabled ]; then
+    echo -e "\n\tSecuring the web server:\n"
+
+    if mv /opt/xensource/www/XenCenter.msi /opt/xensource/www/XenCenter.msi.disabled ; then
 	echo -e "\nMoved /opt/xensource/www/XenCenter.msi"
     fi
-    if [ mv /opt/xensource/www/XenCenter.iso /opt/xensource/www/XenCenter.iso.disabled ]; then
+    if mv /opt/xensource/www/XenCenter.iso /opt/xensource/www/XenCenter.iso.disabled ; then
 	echo -e "\nMoved /opt/xensource/www/XenCenter.iso"
     fi
     cat > /opt/xensource/www/Citrix-index.html <<EOF
@@ -247,22 +249,23 @@ EOF
 COMMIT
 EOF
 
-}
-
-iptablesrestart () {
     echo -e "\n\tRestarting iptables:\n"
     service iptables restart
     service iptables status
+
 }
 
 manageon () {
     echo -e "\nMode manage ON (opening port 443)\n"
-    sed -i '/INPUT -j HTTPS/ s/^# //' $IPTCONF
+    iptables -D INPUT -j HTTPS-FOR-XENCENTER 2> /dev/null
+    iptables -I INPUT -j HTTPS-FOR-XENCENTER
+    service iptables status
 }
 
 manageoff () {
     echo -e "\nMode manage OFF (closing port 443)\n"
-    sed -i '/INPUT -j HTTPS/ s/^/# /' $IPTCONF
+    iptables -D INPUT -j HTTPS-FOR-XENCENTER
+    service iptables status
 }
 
 usage () {
@@ -275,6 +278,7 @@ Options:
 
   -f, --fixall   : fixes the XenServer pristine install to fit our needs.
                    Should be run only once after install and after each upgrade.
+                   This will OPEN the HTTPS access, run -O to close it.
 
   -o, --on       : turns on HTTPS (needed for XenCenter access)
   -O, --off      : turns off HTTPS
@@ -304,17 +308,14 @@ while true; do
     case "$1" in
 	-f|--fixall)
 	    fixall
-	    iptablesrestart
 	    shift
 	    ;;
 	-o|--on)
 	    manageon
-	    iptablesrestart
 	    shift
 	    ;;
 	-O|--off)
 	    manageoff
-	    iptablesrestart
 	    shift
 	    ;;
         -h|--help)
