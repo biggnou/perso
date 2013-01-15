@@ -1,8 +1,29 @@
 #!/bin/sh
+# @author: biggnou
+# @purpose: script qui initialise les XenServers a mon gout.
 
+## Constantes
 OFFICE=`getent hosts host.example.com | cut -d' ' -f1`
 VPN="192.168.0.0/16"
 IPTCONF="/etc/sysconfig/iptables"
+
+## HOWTO: on a deux arrays pour les usernames et les clefs SSH. Il faut que les clefs de ces arrays correspondent.
+## Ca sera plus beau avec un script python, mais bash est sexy.
+# usernames
+ADMINUNAMES[0]="a"
+ADMINUNAMES[1]="b"
+ADMINUNAMES[2]="c"
+# clefs SSH
+ADMINKEYS[0]="ssh-rsa a"
+ADMINKEYS[1]="ssh-rsa b"
+ADMINKEYS[2]="ssh-rsa c"
+
+## Basic check for arrays lenght
+if [[ ${#ADMINUNAMES[@]} != ${#ADMINKEYS[@]} ]]; then
+    echo -e "\n\tThere is a problem with admins uname/ssh-keys hashes.\n\tFix this in order to use this script.\n"
+    exit 12
+fi
+
 
 fixall () {
     ## Fix yum: add fc6 extras
@@ -29,7 +50,6 @@ EOF
     ## Simple but usable vimrc
     cat > /root/.vimrc <<EOF
 syntax on
-autoindent
 se ts=4
 se expandtab
 se shiftwidth=4
@@ -57,34 +77,18 @@ EOF
 (setq-default c-basic-offset 4)
 (setq-default tab-width 8)
 (show-paren-mode)
-;; (setq-default tab-width 4)
-;; (setq make-backup-files nil)
 (setq indent-tabs-mode nil)
 (display-time)
-;;(mouse-wheel-mode t)
 (setq backup-directory-alist '(("." . "~/.emacsbak")))
 (setq require-final-newline t)
 (menu-bar-mode -1)
-;;(tool-bar-mode -1)
 (setq auto-mode-alist (cons '("\\.h\\'" . c++-mode) auto-mode-alist))
-;;(setq c-default-style '(("c++-mode" . "gnu") (other . "gnu")))
-;;(setq write-region-inhibit-fsync t)
 (put 'upcase-region 'disabled nil)
 (load-library "cmuscheme")
 (setq fortune-file "/usr/share/games/fortunes")
 (setq custom-file "~/.emacs-custom.el")
 (load custom-file)
 (column-number-mode t)
-;; (setq semantic-load-turn-everything-on t)
-;; (load-library "semantic-load")
-;; (global-semantic-idle-completions-mode)
-;; (setq semanticdb-project-roots
-;;          (list "/home/joe/prog/proj3d/src"))
-;; (setq semanticdb-default-save-directory "~/.semantic-cache")
-;; (semantic-load-enable-code-helpers)
-;; (add-hook 'c-mode-hook
-;;    '(lambda ()
-;;       (define-key c-mode-map "." 'semantic-complete-self-insert)))
 (add-hook 'java-mode-hook
       '(lambda ()
          (setq indent-tabs-mode nil)
@@ -136,10 +140,6 @@ EOF
 
     cat > /root/.emacs-custom.el << EOF
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
  '(c-basic-offset 4)
  '(compilation-window-height 10)
  ;; '(confirm-kill-emacs (quote y-or-n-p))
@@ -151,50 +151,42 @@ EOF
  '(safe-local-variable-values (quote ((test-case-name . twisted\.mail\.test\.test_imap) (encoding . utf-8))))
  '(scheme-mit-dialect nil))
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- ;; '(default ((t (:stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 160 :width normal :family "xos4-terminus"))))
  '(cursor ((t (:background "#ffffff")))))
 EOF
 
     ## secure the webserver
-    echo -e "\n\tSecuring the web server:\n"
-
-    if mv /opt/xensource/www/XenCenter.msi /opt/xensource/www/XenCenter.msi.disabled ; then
+    if [ mv /opt/xensource/www/XenCenter.msi /opt/xensource/www/XenCenter.msi.disabled ]; then
 	echo -e "\nMoved /opt/xensource/www/XenCenter.msi"
     fi
-    if mv /opt/xensource/www/XenCenter.iso /opt/xensource/www/XenCenter.iso.disabled ; then
+    if [ mv /opt/xensource/www/XenCenter.iso /opt/xensource/www/XenCenter.iso.disabled ]; then
 	echo -e "\nMoved /opt/xensource/www/XenCenter.iso"
     fi
     cat > /opt/xensource/www/Citrix-index.html <<EOF
 <html>
-  <title>XenServer 2.1.0-haha.com</title>
+  <title>VMWare ESXi v2.1.0-haha.com</title>
   <body>Go away.</body>
 </html>
 EOF
 
     ## Prepare /root/.ssh/authorized_keys
     cat > /root/.ssh/authorized_keys <<EOF
-# Paste your keys here
 EOF
 
     ## Prepare sshd_config
     cat > /etc/ssh/sshd_config <<EOF
 Protocol 2
 SyslogFacility AUTHPRIV
-PermitRootLogin without-password
+PermitRootLogin no
 PasswordAuthentication no
 ChallengeResponseAuthentication no
 GSSAPIAuthentication no
 GSSAPICleanupCredentials yes
 UsePAM yes
-AcceptEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES 
-AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT 
+AcceptEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES
+AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT
 AcceptEnv LC_IDENTIFICATION LC_ALL
 X11Forwarding yes
-Subsystem   sftp    /usr/libexec/openssh/sftp-server
+# Subsystem   sftp    /usr/libexec/openssh/sftp-server
 EOF
 
     # Restart sshd
@@ -204,7 +196,7 @@ EOF
     ## Correct iptables
     sed -i 's/^IPTABLES_MODULES=".\+$/IPTABLES_MODULES=""/g' /etc/sysconfig/iptables-config
 
-    cat > /etc/sysconfig/iptables <<EOF
+    cat > $IPTCONF <<EOF
 # rules as per `basename $0`
 # rolled on: `date`
 *filter
@@ -249,41 +241,92 @@ EOF
 COMMIT
 EOF
 
+}
+
+manageusers () {
+    ## prepare individual users
+    for (( i=0; i<=$((${#ADMINUNAMES[@]}-1)); i++ )); do # iterate through all available unames
+	grep ${ADMINUNAMES[$i]} /etc/passwd 1>/dev/null
+	if [[ $? == 0 ]]; then # the user already exists, only update the SSH key
+	    echo -e "\n\t${ADMINUNAMES[$i]} already exists; skipping user creation but updating SSH key:"
+	    echo ${ADMINKEYS[$i]} > /home/${ADMINUNAMES[$i]}/.ssh/authorized_keys
+            [ $? -eq 0 ] && echo -e "\t\tSSH public key updated for ${ADMINUNAMES[$i]}!\n" || echo -e "\n\tFAILED to update ${ADMINUNAMES[$i]} authorized_keys!\n"
+	else # user do not exists, create it, set a default password and plug the SSH key
+	    echo -e "\n\tUser ${ADMINUNAMES[$i]} not found; creating it right away;"
+	    pass=$(perl -e 'print crypt($ARGV[0], "password")' defaultsecretpassword)
+	    useradd -m -p $pass ${ADMINUNAMES[$i]}
+	    [ $? -eq 0 ] && echo -e "\t\tUser ${ADMINUNAMES[$i]} has been added to system!" || echo -e "\n\tFAILED to add a user ${ADMINUNAMES[$i]}!\n"
+	    mkdir /home/${ADMINUNAMES[$i]}/.ssh
+	    echo ${ADMINKEYS[$i]} > /home/${ADMINUNAMES[$i]}/.ssh/authorized_keys
+	    chown -R ${ADMINUNAMES[$i]}: /home/${ADMINUNAMES[$i]}/.ssh
+	    [ $? -eq 0 ] && echo -e "\t\tSSH public key implanted for user ${ADMINUNAMES[$i]}!\n" || echo -e "\n\tFAILED to create ${ADMINUNAMES[$i]} authorized_keys!\n"
+	fi
+    done
+
+    ## preparer sudoer file
+    # create ADMINS group
+    grep -E '^MYADMINS ALL=' /etc/sudoers 1>/dev/null
+    if [ $? -eq 0 ]; then
+	echo -e "\n\tSudoers file already prepared!"
+    else
+	echo -e "\nMYADMINS ALL=NOPASSWD: /bin/su\n" >> /etc/sudoers
+	[ $? -eq 0 ] && echo -e "\n\tFile /etc/sudoers updated!" || echo -e "\n\tA PROBLEM OCCURED while updating /etc/sudoers!!!"
+    fi
+    # create the first sudoer
+    echo -e "User_Alias MYADMINS = ${ADMINUNAMES[0]}, \c" > /tmp/admins
+    # then populate with all users but the last one
+    for (( i=1; i<=$((${#ADMINUNAMES[@]}-2)); i++ )); do
+	echo -e "${ADMINUNAMES[$i]}, \c" >> /tmp/admins
+	echo $admins
+    done
+    # add the last one without comma
+    echo -e "${ADMINUNAMES[${#ADMINUNAMES[@]}-1]}" >> /tmp/admins
+    # remove the old line
+    sed -i 's/^User_Alias MYADMINS =.\+//' /etc/sudoers
+    # create temporary new file
+    cat /etc/sudoers /tmp/admins > /tmp/sudoers
+    # move the new file at the right place, chmod it and remove temporary file
+    mv /tmp/sudoers /etc/sudoers
+    chmod 0440 /etc/sudoers
+    rm /tmp/admins
+
+}
+
+iptablesrestart () {
     echo -e "\n\tRestarting iptables:\n"
     service iptables restart
     service iptables status
-
 }
 
 manageon () {
     echo -e "\nMode manage ON (opening port 443)\n"
-    iptables -D INPUT -j HTTPS-FOR-XENCENTER 2> /dev/null
-    iptables -I INPUT -j HTTPS-FOR-XENCENTER
-    service iptables status
+    sed -i '/INPUT -j HTTPS/ s/^# //' $IPTCONF
 }
 
 manageoff () {
     echo -e "\nMode manage OFF (closing port 443)\n"
-    iptables -D INPUT -j HTTPS-FOR-XENCENTER
-    service iptables status
+    sed -i '/INPUT -j HTTPS/ s/^/# /' $IPTCONF
 }
 
 usage () {
     cat <<EOF
+
 USAGE:
 
 $(basename $0) [options]
 
 Options:
 
-  -f, --fixall   : fixes the XenServer pristine install to fit our needs.
+  -f, --fixall   : Fixes the XenServer pristine install to fit our needs.
                    Should be run only once after install and after each upgrade.
                    This will OPEN the HTTPS access, run -O to close it.
 
-  -o, --on       : turns on HTTPS (needed for XenCenter access)
-  -O, --off      : turns off HTTPS
+  -u, --users    : Fixes admin users and/or updates SSH keys
 
-  -h, --help     : this help message
+  -o, --on       : Turns HTTPS on (needed for XenCenter access)
+  -O, --off      : Turns HTTPS off
+
+  -h, --help     : This help message
 
 EOF
 }
@@ -296,7 +339,7 @@ if [ "$#" -eq 0 ]; then   # Script needs at least one command-line argument.
 fi
 
 ## options may be followed by one colon to indicate they have a required argument
-OPTS=`getopt -o fhoO -l fixall,help,on,off -- "$@"`
+OPTS=`getopt -o fhoOu -l fixall,help,on,off,users -- "$@"`
 
 if [ $? != 0 ]; then
     exit 1
@@ -308,14 +351,21 @@ while true; do
     case "$1" in
 	-f|--fixall)
 	    fixall
+	    iptablesrestart
 	    shift
 	    ;;
 	-o|--on)
 	    manageon
+	    iptablesrestart
 	    shift
 	    ;;
 	-O|--off)
 	    manageoff
+	    iptablesrestart
+	    shift
+	    ;;
+	-u|--users)
+	    manageusers
 	    shift
 	    ;;
         -h|--help)
