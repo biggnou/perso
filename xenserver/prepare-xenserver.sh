@@ -241,6 +241,10 @@ EOF
 COMMIT
 EOF
 
+    echo -e "\n\tRestarting iptables:\n"
+    service iptables restart
+    service iptables status
+
 }
 
 manageusers () {
@@ -292,20 +296,17 @@ manageusers () {
 
 }
 
-iptablesrestart () {
-    echo -e "\n\tRestarting iptables:\n"
-    service iptables restart
-    service iptables status
-}
-
 manageon () {
     echo -e "\nMode manage ON (opening port 443)\n"
-    sed -i '/INPUT -j HTTPS/ s/^# //' $IPTCONF
+    iptables -D INPUT -j HTTPS-FOR-XENCENTER 2> /dev/null
+    iptables -I INPUT -j HTTPS-FOR-XENCENTER
+    service iptables status
 }
 
 manageoff () {
     echo -e "\nMode manage OFF (closing port 443)\n"
-    sed -i '/INPUT -j HTTPS/ s/^/# /' $IPTCONF
+    iptables -D INPUT -j HTTPS-FOR-XENCENTER
+    service iptables status
 }
 
 usage () {
@@ -351,17 +352,14 @@ while true; do
     case "$1" in
 	-f|--fixall)
 	    fixall
-	    iptablesrestart
 	    shift
 	    ;;
 	-o|--on)
 	    manageon
-	    iptablesrestart
 	    shift
 	    ;;
 	-O|--off)
 	    manageoff
-	    iptablesrestart
 	    shift
 	    ;;
 	-u|--users)
