@@ -155,10 +155,10 @@ EOF
 EOF
 
     ## secure the webserver
-    if [ mv /opt/xensource/www/XenCenter.msi /opt/xensource/www/XenCenter.msi.disabled ]; then
+    if mv /opt/xensource/www/XenCenter.msi /opt/xensource/www/XenCenter.msi.disabled ; then
 	echo -e "\nMoved /opt/xensource/www/XenCenter.msi"
     fi
-    if [ mv /opt/xensource/www/XenCenter.iso /opt/xensource/www/XenCenter.iso.disabled ]; then
+    if mv /opt/xensource/www/XenCenter.iso /opt/xensource/www/XenCenter.iso.disabled ; then
 	echo -e "\nMoved /opt/xensource/www/XenCenter.iso"
     fi
     cat > /opt/xensource/www/Citrix-index.html <<EOF
