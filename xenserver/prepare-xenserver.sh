@@ -241,6 +241,10 @@ EOF
 COMMIT
 EOF
 
+    echo -e "\n\tRestarting iptables:\n"
+    service iptables restart
+    service iptables status
+
 }
 
 manageusers () {
@@ -289,10 +293,6 @@ manageusers () {
     mv /tmp/sudoers /etc/sudoers
     chmod 0440 /etc/sudoers
     rm /tmp/admins
-
-    echo -e "\n\tRestarting iptables:\n"
-    service iptables restart
-    service iptables status
 
 }
 
