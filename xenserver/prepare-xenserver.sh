@@ -243,7 +243,6 @@ EOF
 
     echo -e "\n\tRestarting iptables:\n"
     service iptables restart
-    service iptables status
 
 }
 
@@ -320,7 +319,7 @@ Options:
 
   -f, --fixall   : Fixes the XenServer pristine install to fit our needs.
                    Should be run only once after install and after each upgrade.
-                   This will OPEN the HTTPS access, run -O to close it.
+                   This will close the HTTPS access.
 
   -u, --users    : Fixes admin users and/or updates SSH keys
 
@@ -352,6 +351,7 @@ while true; do
     case "$1" in
 	-f|--fixall)
 	    fixall
+	    manageoff
 	    shift
 	    ;;
 	-o|--on)
