@@ -38,9 +38,40 @@ gpgcheck=0
 EOF
     fi
 
+    ## Fix yum: add epel
+    if [ ! -f /etc/yum.repos.d/epel.repo ]; then
+        cat > /etc/yum.repos.d/epel.repo <<EOF
+[epel]
+name=Extra Packages for Enterprise Linux 5 - \$basearch
+#baseurl=http://download.fedoraproject.org/pub/epel/5/\$basearch
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-5&arch=\$basearch
+failovermethod=priority
+enabled=0
+gpgcheck=1
+#gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL
+
+EOF
+    fi
+
     ## Install generic stuff
-    yum --enablerepo=base install vim-enhanced emacs
-    yum --enablerepo=fc6-extras install ulogd
+    yum clean all
+    yum --enablerepo base --enablerepo fc6-extras --enablerepo epel install vim-enhanced emacs ulogd nrpe nagios-plugins-all
+
+    ## nrpe conf
+    chkconfig nrpe on
+    service nrpe start
+    ## for nrpe, we must have those modules (load them and be sure to load them after reboot)
+    modprobe ipmi_msghandler
+    modprobe ipmi_devintf
+    modprobe ipmi_si
+
+    cat > /etc/rc.modules <<EOF
+modprobe ipmi_msghandler
+modprobe ipmi_devintf
+modprobe ipmi_si
+EOF
+
+    chmod +x /etc/rc.modules
 
     ## fix ulog daemon
     sed -i 's/^loglevel=.\+$/loglevel=3/g' /etc/ulogd.conf
@@ -55,13 +86,13 @@ se expandtab
 se shiftwidth=4
 EOF
 
-    ## Always use the pretty vi
+    ## Always use vim because vi sucks
     if [ -e /usr/bin/vim ]; then
 	rm /bin/vi
 	ln -s /usr/bin/vim /bin/vi
     fi
 
-    ## Now, always use emacs because vi sucks
+    ## Now, always use emacs because both vi and vim sucks
     cat > /usr/bin/em <<EOF
 #!/bin/sh
 
@@ -230,6 +261,8 @@ EOF
 -A RH-Firewall-1-INPUT -m state --state NEW -m udp -p udp --dport 123 -j ACCEPT
 # SSH
 -A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+# NRPE checks for nagios
+-A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 5666 -j ACCEPT
 ## https is needed for XenCenter
 -A HTTPS-FOR-XENCENTER -m state --state NEW -m tcp -p tcp -s $OFFICE --dport 443 -j ACCEPT
 -A HTTPS-FOR-XENCENTER -m state --state NEW -m tcp -p tcp -s $VPN --dport 443 -j ACCEPT
