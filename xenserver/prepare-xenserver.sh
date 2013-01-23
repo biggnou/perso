@@ -47,9 +47,7 @@ name=Extra Packages for Enterprise Linux 5 - \$basearch
 mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-5&arch=\$basearch
 failovermethod=priority
 enabled=0
-gpgcheck=1
-#gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL
-
+gpgcheck=0
 EOF
     fi
 
