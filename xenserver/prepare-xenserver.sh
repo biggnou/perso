@@ -71,6 +71,26 @@ EOF
 
     chmod +x /etc/rc.modules
 
+    ## Get MegaCLI for Nagios RAID monitoring
+    rpm -q MegaCli-8.07.06-1.noarch ; rc=$?
+    if [[ $rc != 0 ]]; then
+        echo -e "\n\tMegaCLI is not installed, performing this right now!\n"
+        wget http://www.lsi.com/downloads/Public/MegaRAID%20Common%20Files/8.07.06_MegaCLI.zip
+        mkdir megacli ; mv 8.07.06_MegaCLI.zip megacli ; cd megacli ; unzip 8.07.06_MegaCLI.zip
+        cd Linux
+        rpm -i MegaCli-8.07.06-1.noarch.rpm
+    else
+        echo -e "\n\tMegaCLI already installed!\n"
+    fi
+    /opt/MegaRAID/MegaCli/MegaCli -LDInfo -Lall -aALL | grep State
+    for i in {0..5}; do /opt/MegaRAID/MegaCli/MegaCli -PDRbld -ShowProg -PhysDrv [32:$i] -aALL | grep Device; done
+
+    ## get the nagios check script from Nagios exchange
+    wget http://exchange.nagios.org/components/com_mtree/attachment.php?link_id=680\&cf_id=24
+    mv attachment.php\?link_id\=680\&cf_id\=24 check_megaraid_sas
+    chmod +x check_megaraid_sas
+    mv check_megaraid_sas /usr/lib/nagios/plugins
+
     ## fix ulog daemon
     sed -i 's/^loglevel=.\+$/loglevel=3/g' /etc/ulogd.conf
     chkconfig ulogd on
