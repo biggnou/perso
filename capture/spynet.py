@@ -12,10 +12,12 @@ import subprocess
 import sys
 import os
 
-def tcpdump(iface, filters):
+def tcpdump(iface, filters):  ## the capture bit
+    ## tcpdump -s 0 -i eth0 -A tcp port 80 or 443  ### is working just fine
     p = subprocess.Popen(['tcpdump', '-l', '-i', iface, filters], stdout=subprocess.PIPE)
     for row in iter(p.stdout.readline, b''):
         print row.rstrip()   # process here
+
 
 def main():
     check = os.getuid()
@@ -25,7 +27,7 @@ def main():
 
     parser = OptionParser()
     parser.add_option("-i", "--iface", dest="iface", default="eth0", help="Which interface? [default: %default]")
-    parser.add_option("-f", "--filters", dest="filters", default="tcp port 80 or 443", help="Specify filter capture [default: %default]")
+    parser.add_option("-f", "--filters", dest="filters", default="tcp port 80 or 443", help="Specify filter capture [default to web traffic: %default]")
 
     (options, args) = parser.parse_args()
     
