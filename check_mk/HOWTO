@@ -1,0 +1,66 @@
+How to deploy check_mk agent on pfsense
+
+(deployed on pfsense 2.2)
+
+create this file: /etc/rc.conf.local and add to to it:
+---------------------
+inetd_enable="YES"
+inetd_flags="-wW"
+---------------------
+
+Edit /etc/services to add:
+---------------------
+check_mk        6556/tcp   #check_mk agent
+---------------------
+
+Edit /etc/inetd.conf and add:
+---------------------
+check_mk    stream    tcp    nowait    root    /usr/local/bin/check_mk_agent    check_mk
+---------------------
+
+Edit /etc/hosts.allow and add:
+---------------------
+check_mk_agent : <omd_or_nagios_srv_IP> : allow
+check_mk_agent : ALL : deny
+---------------------
+
+Note: On pfsense, this is wilde open, you may want to take the oportunity to close this a little bit.
+
+Create /etc/rc.d/inetd with:
+---------------------
+#!/bin/sh
+#
+# $FreeBSD$
+#
+ 
+# PROVIDE: inetd
+# REQUIRE: DAEMON LOGIN cleanvar
+# KEYWORD: shutdown
+ 
+. /etc/rc.subr
+ 
+name="inetd"
+rcvar="inetd_enable"
+command="/usr/sbin/${name}"
+pidfile="/var/run/${name}.pid"
+required_files="/etc/${name}.conf"
+extra_commands="reload"
+ 
+load_rc_config $name
+run_rc_command "$1"
+----------------------
+
+/etc/rc.d/inetd should be executable.
+
+Get a copy of the agent script. Best way is to clone official Git repo:
+git clone http://git.mathias-kettner.de/check_mk.git
+
+Copy the agent here: /usr/local/bin/check_mk_agent
+
+check_mk_agent should be executable.
+
+For local checks, create /var/lib/check_mk/local directory and add the pfsense_check_mk file there.
+That file must be executable.
+Run /ucr/local/bin/check_mk_agent.
+If you see a <<<local>>> section at the end of the output, you're good.
+Else, troubleshoot: file permissions and the call to the local scripts within the check_mk_agent script.

@@ -1,0 +1,21 @@
+#!/bin/sh
+# @author: biggnou@gmail.com
+# @purpose: local checks on pfsense router for check_mk
+
+# output should echo: status item_name perf_data check output
+# 4 columns, spaces allowed only in last one, will be in "local" section from agent
+# complete ref: https://mathias-kettner.de/checkmk_localchecks.html
+
+# My IPv4 addresses
+## ips=$(ifconfig | grep -v '128.0.0.1' | awk '/inet / { printf "%s ", $2 }') # uses ifconfig
+ips=$(while read l; do echo -n "$l "; done < /tmp/ifcfg) # pfsense specific
+echo "0 configured_ips - $ips"
+
+# My default GW
+## def_gw=$(netstat -rn | awk '/default/ {print $2}') # FreeBSD style
+def_gw=$(cat /tmp/*_defaultgw)  # pfsense specific
+echo "0 default_gw - $def_gw"
+
+# Packet loss to GW (1-2 pkts only, time is matter for cmk)
+gw_pkt_loss=`ping -c 2 $def_gw | grep "packet loss" | cut -d ',' -f 3 | sed -e 's/^ //' | cut -d'%' -f1`
+echo "P packet_loss pktloss=$gw_pkt_loss;1;2 Packet loss measured on default gateway"

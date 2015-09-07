@@ -1,0 +1,10 @@
+My personnal adds to monitor pfsense with check_mk
+--------------------------------------------------
+
+Check MK is a great monitoring tool, but the freebsd part is lacking... bits.
+
+Particularly for pfsense, which is FreeBSD based but is particular.
+
+Here are some basic checks, that works, and gives vital info for such an appliance.
+
+Will eventually make this a plugin instead of local checks.
