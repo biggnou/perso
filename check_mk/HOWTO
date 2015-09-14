@@ -51,6 +51,7 @@ run_rc_command "$1"
 ----------------------
 
 /etc/rc.d/inetd should be executable.
+Start the service: service inetd start (or restart it with restart instead)
 
 Get a copy of the agent script. Best way is to clone official Git repo:
 git clone http://git.mathias-kettner.de/check_mk.git
