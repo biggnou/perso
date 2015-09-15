@@ -18,6 +18,11 @@ Edit /etc/inetd.conf and add:
 check_mk    stream    tcp    nowait    root    /usr/local/bin/check_mk_agent    check_mk
 ---------------------
 
+Note: seems that pfsense is ignoring this file. Inetd is usging /var/etc/inetd.conf instead, but as per /etc/inc/filter.inc,
+  there is an hardcoded value for listener: /usr/sbin/inetd -wW -R 0 -a 127.0.0.1 /var/etc/inetd.conf
+  I'll dig into the $helpers and find a way to make this "reboot proof".
+  Why do they break FreeBSD anyway?
+
 Edit /etc/hosts.allow and add:
 ---------------------
 check_mk_agent : <omd_or_nagios_srv_IP> : allow
