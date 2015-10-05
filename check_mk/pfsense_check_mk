@@ -19,3 +19,7 @@ echo "0 default_gw - $def_gw"
 # Packet loss to GW (1-2 pkts only, time is matter for cmk)
 gw_pkt_loss=`ping -c 2 $def_gw | grep "packet loss" | cut -d ',' -f 3 | sed -e 's/^ //' | cut -d'%' -f1`
 echo "P packet_loss pktloss=$gw_pkt_loss;1;2 Packet loss measured on default gateway"
+
+# Bandwidth usage
+bndwdth=`netstat -i -b -n -I re2 | awk '{ if (/\//) { print "InBytes:", $8, "- OutBytes:", $11 } }'`
+echo "0 Bandwidth - $bndwdth"
