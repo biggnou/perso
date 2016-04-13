@@ -21,8 +21,8 @@ gw_pkt_loss=`ping -c 2 $def_gw | grep "packet loss" | cut -d ',' -f 3 | sed -e '
 echo "P packet_loss pktloss=$gw_pkt_loss;1;2 Packet loss measured on default gateway"
 
 # Packet loss to google public DNS (1-2 pkts only, time is matter for cmk)
-ggl_pkt_loss=`ping -c 2 8.8.8.8 | grep "packet loss" | cut -d ',' -f 3 | sed -e 's/^ //' | cut -d'%' -f1`
-echo "P packet_loss pktloss=$ggl_pkt_loss;1;2 Packet loss measured on Google public DNS"
+ggl_pkt_loss=`ping -c 1 8.8.8.8 | grep "packet loss" | cut -d ',' -f 3 | sed -e 's/^ //' | cut -d'%' -f1`
+echo "P packet_loss2 pktloss2=$ggl_pkt_loss;1;2 Packet loss measured on Google public DNS"
 
 # Bandwidth usage
 bndwdth=`netstat -i -b -n -I re2 | awk '{ if (/\//) { print "InBytes:", $8, "- OutBytes:", $11 } }'`
